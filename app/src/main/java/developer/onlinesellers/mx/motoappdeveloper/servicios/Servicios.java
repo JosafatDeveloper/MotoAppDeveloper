@@ -23,6 +23,7 @@ public class Servicios extends Service implements LocationListener {
     private Context ctx;
     double latitud;
     double longitud;
+    public double distancia = 0.0;
     Location location;
     boolean GPSActive;
     protected LocationManager locationManager;
@@ -87,9 +88,18 @@ public class Servicios extends Service implements LocationListener {
     }
     @Override
     public void onLocationChanged(Location location) {
+        if(location.getLatitude() != latitud && location.getLongitude() != longitud){
+            float[] results = new float[1];
+            Location.distanceBetween(
+                    latitud, longitud,
+                    location.getLatitude(), location.getLatitude(), results);
+
+            System.out.println("Distance is: " + results[0]);
+            distancia += results[0];
+        }
+        Log.d("ChangeLocate", "Se cambio la localización");
         latitud = location.getLatitude();
         longitud = location.getLongitude();
-        Log.d("ChangeLocate", "Se cambio la localización");
     }
 
     @Override
