@@ -2,6 +2,7 @@ package developer.onlinesellers.mx.motoappdeveloper;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -10,7 +11,9 @@ import android.util.Log;
 import developer.onlinesellers.mx.motoappdeveloper.servicios.Servicios;
 
 
-
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -30,6 +33,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Servicios servicio;
     double latitud;
     double longitud;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +50,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         servicio = new Servicios(getApplicationContext());
         servicio.printCoordenadas();
         timer = new Timer();
-        playLocate();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -66,48 +77,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             mMap.setMyLocationEnabled(true);
             return;
-        }else{
+        } else {
             mMap.setMyLocationEnabled(true);
         }
-
+        latitud = servicio.getLocationLatitude();
+        longitud = servicio.getLocationLongitud();
+        playLocate();
     }
 
-    public void playLocate(){
-        /*
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(servicio.getLocationLatitude(), servicio.getLocationLongitud()), 15));
-                */
-        timer.schedule(new TimerTask() {
+    public void playLocate() {
 
+
+        timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                latitud = servicio.getLocationLatitude();
-                longitud = servicio.getLocationLongitud();
-                addlocate();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        addlocate();
+                    }
+                });
             }
         }, 0, 30000);
-
     }
-    public void addlocate(){
-        servicio.printCoordenadas();
 
-        /*
+    public void addlocate() {
+        servicio.printCoordenadas();
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(latitud, longitud), 15));
+                new LatLng(servicio.getLocationLatitude(), servicio.getLocationLongitud()), 17));
 
         mMap.addPolyline(new PolylineOptions().geodesic(true)
-                .add(new LatLng(servicio.getLocationLatitude(), servicio.getLocationLongitud()))  // Print mapa
-        );
-        */
-        if(this.mMap != null){
-            this.mMap.addPolyline(new PolylineOptions().geodesic(true)
-                    .add(new LatLng(latitud, longitud))  // Print mapa
-            );
-            this.mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(latitud, longitud), 15));
-        }
-
+                .add(new LatLng(latitud, longitud))
+                .add(new LatLng(servicio.getLocationLatitude(), servicio.getLocationLongitud())));
+        latitud = servicio.getLocationLatitude();
+        longitud = servicio.getLocationLongitud();
 
     }
+
 
 }
